@@ -6,6 +6,7 @@ Dependence
 ++++++++++
 - Requests (http://www.python-requests.org/en/latest/)
 - BencodePy (https://github.com/eweast/BencodePy)
+- PySixel (optional) (https://github.com/saitoha/PySixel)
 
 How to install
 ++++++++++++++
@@ -15,6 +16,7 @@ It is easy.
 
    $ git clone https://github.com/pluser/yacoinado.git --depth 1
    $ pip install -r requirements.txt
+   $ pip install PySixel # to display QRcode in your terminal
 
 Done.
 
