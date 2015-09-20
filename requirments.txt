@@ -1,2 +1,3 @@
 bencodepy
 requests
+beautifulsoup4

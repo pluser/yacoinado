@@ -6,6 +6,7 @@ Dependence
 ++++++++++
 - Requests (http://www.python-requests.org/en/latest/)
 - BencodePy (https://github.com/eweast/BencodePy)
+- BeautifulSoup4 (http://www.crummy.com/software/BeautifulSoup/)
 - PySixel (optional) (https://github.com/saitoha/PySixel)
 
 How to install
@@ -43,6 +44,12 @@ If you want to download the specific file,
 .. code-block:: bash
 
    $ python yacoinado.py 743bc6fad39e3a35460d31af5322c131dd196ac2 --select filename_or_keyword
+
+Want to all files instead of specific file? Yes you can.
+
+.. code-block:: bash
+
+   $ python yacoinado.py 743bc6fad39e3a35460d31af5322c131dd196ac2 --all
 
 To inquire account balance,
 

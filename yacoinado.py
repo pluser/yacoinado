@@ -60,14 +60,26 @@ def get_hash(binary):
 
 def get_endpoint(torrent_hash, select=None):
 	if select:
-		endpoint = 'https://coinado.io/i/{}/search/{}?u={}'.format(torrent_hash, select, COINADO_SECRET)
+		import urllib.parse
+		quoted = urllib.parse.quote(select)
+		# quoted = re.sub(r'[^ \t\n\r\f\va-zA-Z0-9_\[\]\(\).,\'\"]+', '_', select)
+		endpoint = 'https://coinado.io/i/{}/search/{}?u={}'.format(torrent_hash, quoted, COINADO_SECRET)
 	else:
 		endpoint = 'https://coinado.io/i/{}/auto?u={}'.format(torrent_hash, COINADO_SECRET)
 	return endpoint
 
 
-def get_payload(torrent_hash, dest_path, select=None, permit_overwrite=False):
+def get_filelist(torrent_hash):
+	import bs4
+	response = requests.get('http://btdigg.org/search?info_hash={}'.format(torrent_hash))
+	html = bs4.BeautifulSoup(response.text, 'html.parser')
+	filename = list()
+	for entry in html.find('th', text='File size').parent.next_siblings:
+		filename.append(entry.contents[1].text)
+	return filename
 
+
+def get_payload(torrent_hash, dest_path, select=None, permit_overwrite=False):
 	def spinning_cursor():
 		while True:
 			for cursor in r'|/-\\':
@@ -184,9 +196,16 @@ def dispatch_hash(args, t_hash):
 		if os.path.isfile(args.destination) and not args.force:
 			print('To overwrite the file, please add --force option.', file=sys.stderr)
 			return
+		if args.quiet:
+			sys.stdout = open(os.devnull, 'w')
+		if args.all:
+			if os.path.isdir(args.destination):
+				for filename in get_filelist(t_hash):
+					get_payload(t_hash, args.destination, filename, args.force)
+			else:
+				print('Destination is not directory. --all option contradicts.', file=sys.stderr)
+				sys.exit()
 		else:
-			if args.quiet:
-				sys.stdout = open(os.devnull, 'w')
 			get_payload(t_hash, args.destination, args.select, args.force)
 
 
@@ -197,7 +216,9 @@ def setup_args():
 	argparser.add_argument('torrent', nargs='*', help='url,hash,file,magnet...')
 	argparser.add_argument('--quiet', action='store_true')
 	g_source = argparser.add_argument_group(title='input option')
-	g_source.add_argument('--select', help='specify the filename which you want')
+	g_select_or_all = g_source.add_mutually_exclusive_group()
+	g_select_or_all.add_argument('--select', help='specify the filename which you want')
+	g_select_or_all.add_argument('--all', action='store_true', help='download all file which is written in torrent file')
 	g_source.add_argument('--stdin', action='store_true')
 	g_dest = argparser.add_argument_group(title='output option')
 	g_dest.add_argument('--destination', default=os.getcwd(), help='save files to this directory')
