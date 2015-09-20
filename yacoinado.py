@@ -181,6 +181,9 @@ if __name__ == '__main__':
 
 	if args.stdin:
 		while True:
-			source = input()
+			try:
+				source = input()
+			except EOFError:
+				sys.exit()
 			t_hash = source_to_hash(source)
 			dispatch_hash(args, t_hash)
