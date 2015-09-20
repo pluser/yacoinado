@@ -48,7 +48,7 @@ def get_endpoint(torrent_hash, select=None):
 	return endpoint
 
 
-def get_payload(torrent_hash, dest_path, select=None):
+def get_payload(torrent_hash, dest_path, select=None, permit_overwrite=False):
 
 	def spinning_cursor():
 		while True:
@@ -58,7 +58,7 @@ def get_payload(torrent_hash, dest_path, select=None):
 
 	def display_progress(count, size, total):
 		percentage = count * size / total
-		sys.stdout.write('\r{} {:.3%} ({}/{} bytes) downloaded.'.format(next(spinner), percentage, count * size, total))
+		sys.stdout.write('\r{} {:.3%} ({:,}/{:,} bytes) downloaded.'.format(next(spinner), percentage, count * size, total))
 		sys.stdout.flush()
 
 	endpoint = get_endpoint(torrent_hash, select)
@@ -68,13 +68,20 @@ def get_payload(torrent_hash, dest_path, select=None):
 		match = re.search(r'''filename=['"](.*?)['"]''', response.headers['Content-Disposition'])
 		filename = match.group(1)
 		path = os.path.join(os.path.abspath(dest_path), filename)
+	elif os.path.isfile(dest_path):
+		if permit_overwrite:
+			path = os.path.abspath(dest_path)
+		else:
+			print('file: {} exists.'.format(dest_path), file=sys.stderr)
+			print('To overwrite the file, please add --force option', file=sys.stderr)
+			return
 	else:
 		path = os.path.abspath(dest_path)
 
 	with open(path, mode='wb') as fd:
 		print('Connected.')
-		print('filepath: {}'.format(fd.path))
-		for block in response.iter_content():
+		print('Destination: {}'.format(path))
+		for block in response.iter_content(1024):
 			fd.write(block)
 			display_progress(fd.tell(), 1, int(response.headers['Content-Length']))
 	print('\nDownload completed.')
@@ -132,7 +139,11 @@ def dispatch_hash(args, t_hash):
 	elif args.info_hash:
 		print(t_hash)
 	else:
-		get_payload(t_hash, args.destination, args.select)
+		if os.path.isfile(args.destination) and not args.force:
+			print('To overwrite the file, please add --force option.', file=sys.stderr)
+			return
+		else:
+			get_payload(t_hash, args.destination, args.select, args.force)
 
 
 def setup_args():
@@ -144,6 +155,7 @@ def setup_args():
 	g_source.add_argument('--stdin')
 	g_dest = argparser.add_argument_group(title='output option')
 	g_dest.add_argument('--destination', default=os.getcwd(), help='save files to this directory')
+	g_dest.add_argument('--force', action='store_true', help='permit overwrite')
 	g_info = argparser.add_argument_group(title='infomation option')
 	g_info = g_info.add_mutually_exclusive_group()
 	g_info.add_argument('--filename', action='store_true', help='fetch filename')
