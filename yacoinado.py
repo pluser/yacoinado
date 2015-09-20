@@ -40,6 +40,9 @@ import bencodepy
 
 
 COINADO_SECRET = os.getenv('YACOINADO_SECRET')
+if not COINADO_SECRET:
+	print('Please set YACOINADO_SECRET environment variable', file=sys.stderr)
+	sys.exit()
 
 
 def get_torrent_file(url):
