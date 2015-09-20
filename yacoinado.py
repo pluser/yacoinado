@@ -143,6 +143,8 @@ def dispatch_hash(args, t_hash):
 			print('To overwrite the file, please add --force option.', file=sys.stderr)
 			return
 		else:
+			if args.quiet:
+				sys.stdout = open(os.devnull, 'w')
 			get_payload(t_hash, args.destination, args.select, args.force)
 
 
@@ -171,9 +173,6 @@ def setup_args():
 
 if __name__ == '__main__':
 	args = setup_args()
-
-	if args.quiet:
-		sys.stdout = open(os.devnull, 'w')
 
 	for source in args.torrent:
 		t_hash = source_to_hash(source)
