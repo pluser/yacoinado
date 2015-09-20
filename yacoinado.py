@@ -204,7 +204,7 @@ def setup_args():
 	g_dest.add_argument('--force', action='store_true', help='permit overwrite')
 	g_info = argparser.add_argument_group(title='infomation option')
 	g_info = g_info.add_mutually_exclusive_group()
-	g_info.add_argument('--inquiry', '--balance', action='store_true', help='show you account balance')
+	g_info.add_argument('--inquire', '--balance', action='store_true', help='show you account balance')
 	g_info.add_argument('--filename', action='store_true', help='fetch filename')
 	g_info.add_argument('--endpoint', action='store_true', help='fetch download url')
 	g_info.add_argument('--infohash', action='store_true', help='calculate hash')
@@ -217,7 +217,7 @@ def setup_args():
 if __name__ == '__main__':
 	args = setup_args()
 
-	if args.inquiry:
+	if args.inquire:
 		show_balance()
 		sys.exit()
 

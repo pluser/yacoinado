@@ -48,7 +48,7 @@ To inquire account balance,
 
 .. code-block:: bash
 
-   $ python yacoinado.py --inquiry
+   $ python yacoinado.py --inquire
    ...
    Balance: 6.42 GB
    ...
