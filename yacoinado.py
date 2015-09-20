@@ -92,57 +92,66 @@ def get_source_list(args):
 	return lst
 
 
-def url_to_hash(urls):
-	if urls is None:
-		return
-	hashes = list()
-	for url in urls:
-		rawdata = get_torrent_file(url)
-		hashes.append(get_hash(rawdata))
-	return hashes
+def url_to_hash(url):
+	rawdata = get_torrent_file(url)
+	return get_hash(rawdata)
 
 
-def magnet_to_hash(magnets):
-	if magnets is None:
-		return
-	hashes = list()
-	for magnet in magnets:
-		match = re.search(r'xt=urn:btih:(.*?)(?:&.*)?$', magnet)
-		hashes.append(match.group(1))
-	return hashes
+def magnet_to_hash(magnet):
+	match = re.search(r'xt=urn:btih:(.*?)(?:&.*)?$', magnet)
+	return match.group(1)
 
 
-def file_to_hash(files):
-	if files is None:
-		return
-	hashes = list()
-	for f in files:
-		with open(f, mode='rb') as fd:
-			rawdata = fd.read()
-		hashes.append(get_hash(rawdata))
-	return hashes
+def file_to_hash(path):
+	with open(path, mode='rb') as fd:
+		rawdata = fd.read()
+	return get_hash(rawdata)
+
+
+def source_to_hash(source):
+	if source.startswith('http'):
+		torrent_hash = url_to_hash(source)
+	elif 'xt=urn:btih:' in source:
+		torrent_hash = magnet_to_hash(source)
+	elif os.path.exists(source):
+		torrent_hash = file_to_hash(source)
+	elif re.match('^[0-9a-fA-F]+$', source):
+		torrent_hash = source
+	else:
+		print('Unknown source detected.')
+	return torrent_hash
+
+
+def dispatch_hash(args, t_hash):
+	if args.filename:
+		response = requests.head(get_endpoint(t_hash, args.select))
+		match = re.search(r'''filename=['"](.*?)['"]''', response.headers['Content-Disposition'])
+		print(match.group(1))
+	elif args.endpoint:
+		print(get_endpoint(t_hash, args.select))
+	elif args.info_hash:
+		print(t_hash)
+	else:
+		get_payload(t_hash, args.destination, args.select)
 
 
 def setup_args():
 	argparser = argparse.ArgumentParser()
-	if len(sys.argv) == 1:
-		argparser.print_usage()
-	argparser.add_argument('torrent', nargs='*')
+	argparser.add_argument('torrent', nargs='*', help='url,hash,file,magnet...')
 	argparser.add_argument('--quiet', action='store_true')
 	g_source = argparser.add_argument_group(title='input option')
-	g_source.add_argument('--url', '--uri', nargs='+')
-	g_source.add_argument('--hash', nargs='+')
-	g_source.add_argument('--magnet', nargs='+')
-	g_source.add_argument('--file', nargs='+')
-	g_source.add_argument('--select')
+	g_source.add_argument('--select', help='specify the filename which you want')
+	g_source.add_argument('--stdin')
 	g_dest = argparser.add_argument_group(title='output option')
-	g_dest.add_argument('--destination', default=os.getcwd())
+	g_dest.add_argument('--destination', default=os.getcwd(), help='save files to this directory')
 	g_info = argparser.add_argument_group(title='infomation option')
 	g_info = g_info.add_mutually_exclusive_group()
 	g_info.add_argument('--filename', action='store_true', help='fetch filename')
 	g_info.add_argument('--endpoint', action='store_true', help='fetch download url')
 	g_info.add_argument('--info_hash', action='store_true', help='calculate hash')
 	args = argparser.parse_args()
+	if args.torrent is None and args.stdin is not True:
+		argparser.print_usage()
 	return args
 
 
@@ -152,31 +161,12 @@ if __name__ == '__main__':
 	if args.quiet:
 		sys.stdout = open(os.devnull, 'w')
 
-	torrent_hashes = set()
-	torrent_hashes.update(url_to_hash(get_source_list(args.url)))
-	torrent_hashes.update(get_source_list(args.hash))
-	torrent_hashes.update(magnet_to_hash(get_source_list(args.magnet)))
-	torrent_hashes.update(file_to_hash(get_source_list(args.file)))
-	for link in args.torrent:
-		if link.startswith('http'):
-			torrent_hashes.update(url_to_hash([link]))
-		elif 'xt=urn:btih:' in link:
-			torrent_hashes.update(magnet_to_hash([link]))
-		elif os.path.exists(link):
-			torrent_hashes.update(file_to_hash([link]))
-		elif re.match('^[0-9a-fA-F]+$', link):
-			torrent_hashes.update([link])
-		else:
-			raise RuntimeError('Unknown source detected.')
+	for source in args.torrent:
+		t_hash = source_to_hash(source)
+		dispatch_hash(args, t_hash)
 
-	for t_hash in torrent_hashes:
-		if args.filename:
-			response = requests.head(get_endpoint(t_hash, args.select))
-			match = re.search(r'''filename=['"](.*?)['"]''', response.headers['Content-Disposition'])
-			print(match.group(1))
-		elif args.endpoint:
-			print(get_endpoint(t_hash, args.select))
-		elif args.info_hash:
-			print(t_hash)
-		else:
-			get_payload(t_hash, args.destination, args.select)
+	if args.stdin:
+		while True:
+			source = input()
+			t_hash = source_to_hash(source)
+			dispatch_hash(args, t_hash)
