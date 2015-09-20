@@ -129,6 +129,17 @@ def source_to_hash(source):
 	return torrent_hash
 
 
+def show_balance():
+	response = requests.get('https://coinado.io/balance?u={}'.format(COINADO_SECRET))
+	address = re.search(r'Bitcoin address: (?P<address>1[0-9a-zA-Z]+)', response.text, re.MULTILINE)
+	balance = re.search(r'Balance: (?P<balance>.*)$', response.text, re.MULTILINE)
+	pricing = re.search(r'Pricing: (?P<pricing>.*)$', response.text, re.MULTILINE)
+	print('Address: bitcoin:{}'.format(address.group(1)))
+	print('QRcode: https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl={}'.format(address.group(1)))
+	print('Balance: {}'.format(balance.group(1)))
+	print('Pricing: {}'.format(pricing.group(1)))
+
+
 def dispatch_hash(args, t_hash):
 	if args.filename:
 		response = requests.head(get_endpoint(t_hash, args.select))
@@ -162,6 +173,7 @@ def setup_args():
 	g_dest.add_argument('--force', action='store_true', help='permit overwrite')
 	g_info = argparser.add_argument_group(title='infomation option')
 	g_info = g_info.add_mutually_exclusive_group()
+	g_info.add_argument('--inquiry', '--balance', action='store_true', help='show you account balance')
 	g_info.add_argument('--filename', action='store_true', help='fetch filename')
 	g_info.add_argument('--endpoint', action='store_true', help='fetch download url')
 	g_info.add_argument('--infohash', action='store_true', help='calculate hash')
@@ -173,6 +185,10 @@ def setup_args():
 
 if __name__ == '__main__':
 	args = setup_args()
+
+	if args.inquiry:
+		show_balance()
+		sys.exit()
 
 	for source in args.torrent:
 		t_hash = source_to_hash(source)
