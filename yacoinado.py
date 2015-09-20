@@ -125,7 +125,7 @@ def source_to_hash(source):
 	elif re.match('^[0-9a-fA-F]+$', source):
 		torrent_hash = source
 	else:
-		print('Unknown source detected.')
+		print('Unknown source detected.', file=sys.stderr)
 	return torrent_hash
 
 
