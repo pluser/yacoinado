@@ -27,7 +27,7 @@ Secret key will be found in your genuin coinado.io script file which you have do
 
 .. code-block:: bash
 
-   $ export COINADO_SECRET=foobarfoooooobaaaaaaa
+   $ export YACOINADO_SECRET=foobarfoooooobaaaaaaa
 
 Now, you can download smoothly.
 

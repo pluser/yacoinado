@@ -39,7 +39,7 @@ import requests
 import bencodepy
 
 
-COINADO_SECRET = os.getenv('COINADO_SECRET')
+COINADO_SECRET = os.getenv('YACOINADO_SECRET')
 
 
 def get_torrent_file(url):
