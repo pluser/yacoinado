@@ -152,7 +152,7 @@ def setup_args():
 	argparser.add_argument('--quiet', action='store_true')
 	g_source = argparser.add_argument_group(title='input option')
 	g_source.add_argument('--select', help='specify the filename which you want')
-	g_source.add_argument('--stdin')
+	g_source.add_argument('--stdin', action='store_true')
 	g_dest = argparser.add_argument_group(title='output option')
 	g_dest.add_argument('--destination', default=os.getcwd(), help='save files to this directory')
 	g_dest.add_argument('--force', action='store_true', help='permit overwrite')
