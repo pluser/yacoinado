@@ -148,6 +148,8 @@ def dispatch_hash(args, t_hash):
 
 def setup_args():
 	argparser = argparse.ArgumentParser()
+	if len(sys.argv) == 1:
+		argparser.print_usage()
 	argparser.add_argument('torrent', nargs='*', help='url,hash,file,magnet...')
 	argparser.add_argument('--quiet', action='store_true')
 	g_source = argparser.add_argument_group(title='input option')
