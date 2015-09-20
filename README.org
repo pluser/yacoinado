@@ -1,0 +1,21 @@
+* Yet Another Coinado.io client
+** How to install
+It is easy.
+#+BEGIN_SRC shell-script
+git clone hogehoge --depth 1
+pip install -r requirements.txt
+#+END_SRC
+Done.
+** How to use
+First of all, you must set your secret key to environment variable.
+Secret key will be found in your genuin coinado script file which you have downloaded before.
+#+BEGIN_SRC shell-script
+export COINADO_SECRET=foobarfoooooobaaaaaaa
+#+END_SRC
+Now, you can download smoothly.
+#+BEGIN_SRC shell-script
+python yacoinado.py 743bc6fad39e3a35460d31af5322c131dd196ac2
+python yacoinado.py 'http://releases.ubuntu.com/14.04.3/ubuntu-14.04.3-desktop-amd64.iso.torrent'
+python yacoinado.py 'magnet:?xt=urn:btih:743bc6fad39e3a35460d31af5322c131dd196ac2&dn=ubuntu-14.04.3-desktop-amd64.iso'
+python yacoinado.py ~/Desktop/ubuntu-14.04.3-desktop-amd64.iso.torrent
+#+END_SRC
