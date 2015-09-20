@@ -136,7 +136,7 @@ def dispatch_hash(args, t_hash):
 		print(match.group(1))
 	elif args.endpoint:
 		print(get_endpoint(t_hash, args.select))
-	elif args.info_hash:
+	elif args.infohash:
 		print(t_hash)
 	else:
 		if os.path.isfile(args.destination) and not args.force:
@@ -164,7 +164,7 @@ def setup_args():
 	g_info = g_info.add_mutually_exclusive_group()
 	g_info.add_argument('--filename', action='store_true', help='fetch filename')
 	g_info.add_argument('--endpoint', action='store_true', help='fetch download url')
-	g_info.add_argument('--info_hash', action='store_true', help='calculate hash')
+	g_info.add_argument('--infohash', action='store_true', help='calculate hash')
 	args = argparser.parse_args()
 	if args.torrent is None and args.stdin is not True:
 		argparser.print_usage()
