@@ -2,6 +2,16 @@
 Yet Another Coinado.io Client
 =============================
 
+What is coinado?
+++++++++++++++++
+ Coinado is a remote torrenting service.
+ We do the torrenting for you, worry about seeding,
+ keep your privacy and deliver the file over an encrypted connection.
+ After requesting a file, the torrenting happens transparently on our servers
+ and a minute later the file starts streaming to you.
+
+And this software is a client of `coinado.io <https://coinado.io>`_.
+
 Dependence
 ++++++++++
 - Requests (http://www.python-requests.org/en/latest/)
@@ -16,15 +26,16 @@ It is easy.
 .. code-block:: bash
 
    $ git clone https://github.com/pluser/yacoinado.git --depth 1
+   $ cd yacoinado.git
    $ pip install -r requirements.txt
-   $ pip install PySixel # to display QRcode in your terminal
+   $ pip install PySixel # to display QRcode in your terminal (optional)
 
 Done.
 
 How to use
 ++++++++++
 First of all, you need to set your secret key as environment variable.
-Secret key will be found in your genuin coinado.io script file which you have downloaded before.
+The secret key will be found in your genuine coinado.io script file which you have downloaded before.
 
 .. code-block:: bash
 
@@ -45,7 +56,7 @@ If you want to download the specific file,
 
    $ python yacoinado.py 743bc6fad39e3a35460d31af5322c131dd196ac2 --select filename_or_keyword
 
-Want to all files instead of specific file? Yes you can.
+Want all files instead of specific file? Yes you can.
 
 .. code-block:: bash
 
