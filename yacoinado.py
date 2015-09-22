@@ -166,15 +166,15 @@ def show_balance():
 	address = re.search(r'Bitcoin address: (?P<address>1[0-9a-zA-Z]+)', response.text, re.MULTILINE)
 	balance = re.search(r'Balance: (?P<balance>.*)$', response.text, re.MULTILINE)
 	pricing = re.search(r'Pricing: (?P<pricing>.*)$', response.text, re.MULTILINE)
-	qrcode_image = requests.get(
-		'https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl={}'
-		.format(address.group(1)))
 	try:
 		import sixel
 	except ImportError:
 		pass
 	else:
 		import io
+		qrcode_image = requests.get(
+			'https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl={}'
+			.format(address.group(1)))
 		sixel_writer = sixel.SixelWriter()
 		sixel_writer.draw(io.BytesIO(qrcode_image.content))
 	print('Address: bitcoin:{}'.format(address.group(1)))
